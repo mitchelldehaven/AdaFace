@@ -3,15 +3,19 @@ import torch
 import os
 from face_alignment import align
 import numpy as np
+from pathlib import Path
 
 
+PRETRAINED_MODEL_DIR = Path(__file__).resolve().parent
 adaface_models = {
-    'ir_50':"pretrained/adaface_ir50_ms1mv2.ckpt",
+    "ir_18": PRETRAINED_MODEL_DIR / "adaface_ir18_webface4m.ckpt",
+    "ir_50": PRETRAINED_MODEL_DIR / "adaface_ir50_webface4m.ckpt",
+    "ir_100": PRETRAINED_MODEL_DIR / "adaface_ir101_webface12m.ckpt"
 }
 
 def load_pretrained_model(architecture='ir_50'):
     # load model and pretrained statedict
-    assert architecture in adaface_models.keys()
+    assert architecture in adaface_models.keys(), f"Expected model architecture to be in {adaface_models.keys()}"
     model = net.build_model(architecture)
     statedict = torch.load(adaface_models[architecture])['state_dict']
     model_statedict = {key[6:]:val for key, val in statedict.items() if key.startswith('model.')}
