@@ -7,7 +7,11 @@ from PIL import Image
 from tqdm import tqdm
 import random
 from datetime import datetime
-mtcnn_model = mtcnn.MTCNN(device='cuda:0', crop_size=(112, 112))
+
+
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+MTCNN_MODEL = mtcnn.MTCNN(device=DEVICE, crop_size=(112, 112))
+
 
 def add_padding(pil_img, top, right, bottom, left, color=(0,0,0)):
     width, height = pil_img.size
@@ -17,7 +21,7 @@ def add_padding(pil_img, top, right, bottom, left, color=(0,0,0)):
     result.paste(pil_img, (left, top))
     return result
 
-def get_aligned_face(image_path, rgb_pil_image=None):
+def get_aligned_face(image_path, rgb_pil_image=None, max_num_faces=1):
     if rgb_pil_image is None:
         img = Image.open(image_path).convert('RGB')
     else:
@@ -25,13 +29,13 @@ def get_aligned_face(image_path, rgb_pil_image=None):
         img = rgb_pil_image
     # find face
     try:
-        bboxes, faces = mtcnn_model.align_multi(img, limit=1)
-        face = faces[0]
+        bboxes, faces = MTCNN_MODEL.align_multi(img, limit=max_num_faces)
+        faces = faces[:max_num_faces]
     except Exception as e:
         print('Face detection Failed due to error.')
         print(e)
-        face = None
+        faces = None
 
-    return face
+    return faces
 
 
