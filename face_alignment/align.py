@@ -1,17 +1,19 @@
 import sys
 import os
 
-from face_alignment import mtcnn
+from AdaFace.face_alignment import mtcnn
+import torch
 import argparse
 from PIL import Image
 from tqdm import tqdm
 import random
 from datetime import datetime
+import logging
 
-
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+logger = logging.getLogger("app.py")
+DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 MTCNN_MODEL = mtcnn.MTCNN(device=DEVICE, crop_size=(112, 112))
-
+logger.info(f"Loaded MTCNN model for face alignment with device: {DEVICE}")
 
 def add_padding(pil_img, top, right, bottom, left, color=(0,0,0)):
     width, height = pil_img.size
